@@ -1,32 +1,42 @@
 import { create } from "zustand";
 import { Product } from "@/types";
 
+interface CartItem extends Product {
+  quantity: number;
+}
+
 interface CartState {
-  cart: Product[];
+  cart: CartItem[];
+  addToCart: (product: Product, quantity: number) => void;
+  removeFromCart: (id: number) => void;
   subtotal: number;
-  addToCart: (product: Product) => void;
-  removeFromCart: (productId: number) => void; // ✅ Agregamos esta función
 }
 
 export const useCartStore = create<CartState>((set) => ({
   cart: [],
-  subtotal: 0,
-
-  addToCart: (product) =>
+  
+  addToCart: (product, quantity) =>
     set((state) => {
-      const updatedCart = [...state.cart, product];
-      return {
-        cart: updatedCart,
-        subtotal: updatedCart.reduce((sum, item) => sum + item.price, 0),
-      };
+      const existingProduct = state.cart.find((item) => item.id === product.id);
+      if (existingProduct) {
+        // Si el producto ya está en el carrito, solo aumentamos la cantidad
+        return {
+          cart: state.cart.map((item) =>
+            item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
+          ),
+        };
+      } else {
+        // Si no está en el carrito, lo agregamos con la cantidad seleccionada
+        return {
+          cart: [...state.cart, { ...product, quantity }],
+        };
+      }
     }),
 
-  removeFromCart: (productId) =>
-    set((state) => {
-      const updatedCart = state.cart.filter((item) => item.id !== productId);
-      return {
-        cart: updatedCart,
-        subtotal: updatedCart.reduce((sum, item) => sum + item.price, 0),
-      };
-    }),
+  removeFromCart: (id) =>
+    set((state) => ({
+      cart: state.cart.filter((item) => item.id !== id),
+    })),
+
+  subtotal: 0, // Esto se actualizará con un selector en el componente
 }));
