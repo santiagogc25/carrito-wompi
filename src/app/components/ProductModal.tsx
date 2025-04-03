@@ -1,21 +1,26 @@
-"use client";
+"use client"; // Indica que este componente se ejecuta en el cliente.
 
-import { useState } from "react";
-import { Product } from "@/types";
-import { useCartStore } from "@/store/cartStore";
-import { ShoppingCart, Minus, Plus, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { useState } from "react"; // Importa useState para gestionar el estado.
+import { Product } from "@/types"; // Importa el tipo Product para tipado TypeScript.
+import { useCartStore } from "@/store/cartStore"; // Importa el store del carrito.
+import { ShoppingCart, Minus, Plus, X } from "lucide-react"; // Importa iconos de Lucide React.
+import { Button } from "@/components/ui/button"; // Importa el componente de botón reutilizable.
+import { Card, CardContent } from "@/components/ui/card"; // Importa componentes de tarjeta.
 
+// Define las propiedades que recibe el modal.
 const ProductModal = ({ product, onClose }: { product: Product; onClose: () => void }) => {
-  const addToCart = useCartStore((state) => state.addToCart);
-  const [quantity, setQuantity] = useState(1);
+  const addToCart = useCartStore((state) => state.addToCart); // Obtiene la función para agregar al carrito.
+  const [quantity, setQuantity] = useState(1); // Estado para gestionar la cantidad del producto.
 
+  // Función para aumentar la cantidad.
   const incrementQuantity = () => setQuantity((prev) => prev + 1);
+  
+  // Función para disminuir la cantidad, evitando valores menores a 1.
   const decrementQuantity = () => {
     if (quantity > 1) setQuantity((prev) => prev - 1);
   };
 
+  // Función para agregar el producto al carrito y cerrar el modal.
   const handleAddToCart = () => {
     addToCart(product, quantity);
     onClose();
@@ -23,6 +28,7 @@ const ProductModal = ({ product, onClose }: { product: Product; onClose: () => v
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+      {/* Contenedor principal del modal */}
       <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 relative">
         {/* Botón de cierre */}
         <button
@@ -37,6 +43,7 @@ const ProductModal = ({ product, onClose }: { product: Product; onClose: () => v
           <img src={product.image} alt={product.title} className="w-40 h-40 object-cover rounded-lg shadow-md" />
 
           <div className="text-center md:text-left">
+            {/* Información del producto */}
             <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">{product.title}</h2>
             <p className="text-gray-600 dark:text-gray-400 mt-2">{product.description}</p>
             <p className="text-lg font-medium mt-2 text-gray-900 dark:text-gray-300">${product.price.toFixed(2)}</p>

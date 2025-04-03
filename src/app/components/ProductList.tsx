@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import ProductModal from "./ProductModal";
 
+// Definimos la estructura de un producto con su tipo correspondiente
 interface Product {
   id: number;
   title: string;
@@ -13,6 +14,7 @@ interface Product {
   rating: { rate: number; count: number };
 }
 
+// Traducción de categorías al español
 const categoryTranslations: Record<string, string> = {
   "Todos los productos": "Todos los productos",
   "electronics": "Electrónica",
@@ -22,11 +24,16 @@ const categoryTranslations: Record<string, string> = {
 };
 
 const ProductList = () => {
+  // Estado para almacenar los productos
   const [products, setProducts] = useState<Product[]>([]);
+  // Estado para la categoría seleccionada
   const [selectedCategory, setSelectedCategory] = useState("Todos los productos");
+  // Estado para el producto seleccionado en el modal
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  // Estado para controlar la visibilidad del menú lateral en dispositivos pequeños
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  // Cargar los productos desde la API al montar el componente
   useEffect(() => {
     const fetchProducts = async () => {
       const response = await fetch("https://fakestoreapi.com/products");
@@ -36,22 +43,29 @@ const ProductList = () => {
     fetchProducts();
   }, []);
 
+  // Extraer categorías únicas de los productos cargados
   const categories = ["Todos los productos", ...new Set(products.map((p) => p.category))];
 
+  // Filtrar los productos según la categoría seleccionada
   const filteredProducts =
     selectedCategory === "Todos los productos"
       ? products
       : products.filter((p) => p.category === selectedCategory);
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex flex-col md:flex-row min-h-screen">
       {/* Menú de categorías */}
-      <aside className={`fixed top-0 left-0 h-full w-64 p-4 bg-gray-200 dark:bg-gray-800 dark:text-white shadow-lg transform ${
-        isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-      } transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:w-1/5`}>
+      <aside
+        className={`fixed top-0 left-0 h-full w-64 p-4 bg-gray-200 dark:bg-gray-800 dark:text-white shadow-lg transform ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:w-1/5`}
+      >
         <div className="flex justify-between items-center mb-4">
           <h2 className="font-bold text-lg">Categorías</h2>
-          <button className="md:hidden text-gray-600 dark:text-gray-300" onClick={() => setIsSidebarOpen(false)}>
+          <button
+            className="md:hidden text-gray-600 dark:text-gray-300"
+            onClick={() => setIsSidebarOpen(false)}
+          >
             ✖
           </button>
         </div>
@@ -60,7 +74,9 @@ const ProductList = () => {
             <li
               key={category}
               className={`cursor-pointer p-2 rounded-md ${
-                selectedCategory === category ? "bg-blue-500 text-white" : "hover:bg-gray-400 dark:hover:bg-gray-600"
+                selectedCategory === category
+                  ? "bg-blue-500 text-white"
+                  : "hover:bg-gray-400 dark:hover:bg-gray-600"
               }`}
               onClick={() => {
                 setSelectedCategory(category);
@@ -74,11 +90,18 @@ const ProductList = () => {
       </aside>
 
       {/* Contenedor de productos */}
-      <div className="w-full md:w-4/5 ml-0 md:ml-[20%] p-6 bg-gray-100 dark:bg-gray-900">
-        <button className="md:hidden mb-4 px-4 py-2 bg-blue-500 text-white rounded-md shadow-md" onClick={() => setIsSidebarOpen(true)}>
+      <div className="flex-1 p-6 bg-gray-100 dark:bg-gray-900">
+        {/* Botón para abrir el menú en dispositivos móviles */}
+        <button
+          className={`md:hidden mb-4 px-4 py-2 bg-blue-500 text-white rounded-md shadow-md ${
+            isSidebarOpen ? "hidden" : "block"
+          }`}
+          onClick={() => setIsSidebarOpen(true)}
+        >
           ☰ Categorías
         </button>
 
+        {/* Lista de productos */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProducts.map((product) => (
             <div
@@ -99,7 +122,12 @@ const ProductList = () => {
       </div>
 
       {/* Modal de Producto */}
-      {selectedProduct && <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />}
+      {selectedProduct && (
+        <ProductModal
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+        />
+      )}
     </div>
   );
 };

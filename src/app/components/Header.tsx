@@ -20,14 +20,7 @@ const Header = () => {
         {/* Navegación */}
         <nav className="flex items-center space-x-6">
           <Link href="/" className="hover:underline">Inicio</Link>
-          <Link href="/cart" className="relative flex items-center">
-            <ShoppingCart className="w-6 h-6" />
-            {cart.length > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
-                {cart.length}
-              </span>
-            )}
-          </Link>
+          
           <ThemeToggle />
         </nav>
       </div>

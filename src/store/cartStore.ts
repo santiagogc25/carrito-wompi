@@ -1,15 +1,24 @@
 import { create } from "zustand";
 
+/**
+ * Representa un producto disponible para la venta.
+ */
 interface Product {
   id: number;
   title: string;
   price: number;
 }
 
+/**
+ * Representa un ítem en el carrito de compras, extendiendo un producto con cantidad.
+ */
 interface CartItem extends Product {
   quantity: number;
 }
 
+/**
+ * Estado global del carrito de compras, con funciones para manipularlo.
+ */
 interface CartState {
   cart: CartItem[];
   totalPrice: number;
@@ -24,6 +33,11 @@ export const useCartStore = create<CartState>((set) => ({
   cart: [],
   totalPrice: 0,
 
+  /**
+   * Agrega un producto al carrito. Si ya existe, incrementa la cantidad.
+   * @param product Producto a agregar.
+   * @param quantity Cantidad a añadir (por defecto, 1).
+   */
   addToCart: (product, quantity = 1) =>
     set((state) => {
       if (quantity < 1) return state; // Evita agregar cantidades inválidas
@@ -44,12 +58,20 @@ export const useCartStore = create<CartState>((set) => ({
       };
     }),
 
+  /**
+   * Reemplaza el carrito con una nueva lista de productos.
+   * @param cart Nuevo estado del carrito.
+   */
   setCart: (cart) =>
     set({
       cart,
       totalPrice: cart.reduce((sum, p) => sum + p.price * p.quantity, 0),
     }),
 
+  /**
+   * Elimina un producto del carrito por su ID.
+   * @param id ID del producto a eliminar.
+   */
   removeFromCart: (id) =>
     set((state) => {
       const updatedCart = state.cart.filter((p) => p.id !== id);
@@ -59,6 +81,11 @@ export const useCartStore = create<CartState>((set) => ({
       };
     }),
 
+  /**
+   * Actualiza la cantidad de un producto en el carrito.
+   * @param id ID del producto a modificar.
+   * @param quantity Nueva cantidad (mínimo 1).
+   */
   updateQuantity: (id, quantity) =>
     set((state) => {
       const updatedCart = state.cart.map((p) =>
@@ -70,5 +97,8 @@ export const useCartStore = create<CartState>((set) => ({
       };
     }),
 
+  /**
+   * Vacía el carrito y reinicia el total a cero.
+   */
   clearCart: () => set({ cart: [], totalPrice: 0 }),
 }));

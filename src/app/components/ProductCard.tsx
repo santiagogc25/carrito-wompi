@@ -73,7 +73,6 @@ const ProductCard = ({ product }: { product: Product }) => {
           </Button>
         </CardContent>
       </Card>
-      console.log("Producto recibido en ProductCard:", product);
 
       {/* Ventana emergente (modal) */}
       {isOpen && (
@@ -82,6 +81,7 @@ const ProductCard = ({ product }: { product: Product }) => {
             <button
               className="absolute top-2 right-2 text-gray-600 dark:text-gray-300 hover:text-red-500"
               onClick={() => setIsOpen(false)}
+              aria-label="Cerrar modal"
             >
               <X size={24} />
             </button>
@@ -91,7 +91,6 @@ const ProductCard = ({ product }: { product: Product }) => {
               alt={product.title}
               className="w-full h-64 object-cover rounded-md"
             />
-            <p className="mt-4 text-gray-700 dark:text-gray-300">{product.description}</p>
             <p className="text-blue-500 font-bold mt-2 text-lg">${price}</p>
           </div>
         </div>
