@@ -1,30 +1,53 @@
 "use client";
 import { useEffect, useState } from "react";
-import ProductCard from "@/app/components/ProductCard";
-import Cart from "@/app/components/Cart";
 import Footer from "@/app/components/Footer";
-import { Product } from "@/types";
+import { fetchProducts } from "@/services/productService";
+import ProductList from "./components/ProductList";
 
 export default function Home() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("https://fakestoreapi.com/products")
-      .then((res) => res.json())
-      .then((data) => setProducts(data));
+    const getProducts = async () => {
+      try {
+        const data = await fetchProducts();
+        if (!Array.isArray(data)) throw new Error("❌ Respuesta de productos no válida.");
+      } catch (error) {
+        console.error("❌ Error al cargar productos:", error);
+        setError("Error al cargar los productos. Intenta nuevamente.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getProducts();
   }, []);
 
   return (
-    <div className="container mx-auto p-8">
-      <h1 className="text-3xl font-bold text-center mb-6">Catálogo de Productos</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
-      <div className="mt-10">
-        <Cart />
-      </div>
+    <div className="container mx-auto p-8 min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
+      <h1 className="text-4xl font-extrabold text-center mb-8 dark:text-white">
+        Catálogo de Productos
+      </h1>
+
+      {/* Mostrar indicador de carga */}
+      {loading && (
+        <div className="flex justify-center items-center h-32">
+          <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-blue-500"></div>
+          <p className="ml-4 text-gray-600 dark:text-gray-400">Cargando productos...</p>
+        </div>
+      )}
+
+      {/* Mostrar mensaje de error */}
+      {error && (
+        <p className="text-center text-red-500 bg-red-100 p-4 rounded-lg shadow-md">
+          ❌ {error}
+        </p>
+      )}
+
+      {/* Renderizar los productos solo si no hay error ni está cargando */}
+      {!loading && !error && <ProductList />}
+
       <Footer />
     </div>
   );

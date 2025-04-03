@@ -1,5 +1,10 @@
 import { create } from "zustand";
-import { Product } from "@/types";
+
+interface Product {
+  id: number;
+  title: string;
+  price: number;
+}
 
 interface CartItem extends Product {
   quantity: number;
@@ -7,36 +12,63 @@ interface CartItem extends Product {
 
 interface CartState {
   cart: CartItem[];
-  addToCart: (product: Product, quantity: number) => void;
+  totalPrice: number;
+  addToCart: (product: Product, quantity?: number) => void;
   removeFromCart: (id: number) => void;
-  subtotal: number;
+  updateQuantity: (id: number, quantity: number) => void;
+  clearCart: () => void;
+  setCart: (cart: CartItem[]) => void;
 }
 
 export const useCartStore = create<CartState>((set) => ({
   cart: [],
-  
-  addToCart: (product, quantity) =>
+  totalPrice: 0,
+
+  addToCart: (product, quantity = 1) =>
     set((state) => {
-      const existingProduct = state.cart.find((item) => item.id === product.id);
-      if (existingProduct) {
-        // Si el producto ya está en el carrito, solo aumentamos la cantidad
-        return {
-          cart: state.cart.map((item) =>
-            item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
-          ),
-        };
-      } else {
-        // Si no está en el carrito, lo agregamos con la cantidad seleccionada
-        return {
-          cart: [...state.cart, { ...product, quantity }],
-        };
-      }
+      if (quantity < 1) return state; // Evita agregar cantidades inválidas
+
+      const existingProduct = state.cart.find((p) => p.id === product.id);
+
+      const updatedCart = existingProduct
+        ? state.cart.map((p) =>
+            p.id === product.id
+              ? { ...p, quantity: p.quantity + quantity }
+              : p
+          )
+        : [...state.cart, { ...product, quantity }];
+
+      return {
+        cart: updatedCart,
+        totalPrice: updatedCart.reduce((sum, p) => sum + p.price * p.quantity, 0),
+      };
+    }),
+
+  setCart: (cart) =>
+    set({
+      cart,
+      totalPrice: cart.reduce((sum, p) => sum + p.price * p.quantity, 0),
     }),
 
   removeFromCart: (id) =>
-    set((state) => ({
-      cart: state.cart.filter((item) => item.id !== id),
-    })),
+    set((state) => {
+      const updatedCart = state.cart.filter((p) => p.id !== id);
+      return {
+        cart: updatedCart,
+        totalPrice: updatedCart.reduce((sum, p) => sum + p.price * p.quantity, 0),
+      };
+    }),
 
-  subtotal: 0, // Esto se actualizará con un selector en el componente
+  updateQuantity: (id, quantity) =>
+    set((state) => {
+      const updatedCart = state.cart.map((p) =>
+        p.id === id ? { ...p, quantity: Math.max(1, quantity) } : p
+      );
+      return {
+        cart: updatedCart,
+        totalPrice: updatedCart.reduce((sum, p) => sum + p.price * p.quantity, 0),
+      };
+    }),
+
+  clearCart: () => set({ cart: [], totalPrice: 0 }),
 }));

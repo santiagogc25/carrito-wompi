@@ -11,3 +11,9 @@ const nextConfig = {
 };
 
 module.exports = nextConfig;
+
+module.exports = {
+  env: {
+    NEXT_PUBLIC_WOMPI_PUBLIC_KEY: process.env.NEXT_PUBLIC_WOMPI_PUBLIC_KEY,
+  },
+};

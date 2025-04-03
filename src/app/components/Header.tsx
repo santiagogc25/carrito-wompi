@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { useCartStore } from "@/store/cartStore";
+import ThemeToggle from "./ThemeToggle";
+import { Button } from "@/components/ui/button";
+import { ShoppingCart } from "lucide-react";
 
 const Header = () => {
   const cart = useCartStore((state) => state.cart);
@@ -15,17 +18,17 @@ const Header = () => {
         </Link>
 
         {/* Navegación */}
-        <nav>
-          <ul className="flex space-x-6">
-            <li>
-              <Link href="/" className="hover:underline">Inicio</Link>
-            </li>
-            <li>
-              <Link href="/cart" className="hover:underline">
-                Carrito ({cart.length})
-              </Link>
-            </li>
-          </ul>
+        <nav className="flex items-center space-x-6">
+          <Link href="/" className="hover:underline">Inicio</Link>
+          <Link href="/cart" className="relative flex items-center">
+            <ShoppingCart className="w-6 h-6" />
+            {cart.length > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
+                {cart.length}
+              </span>
+            )}
+          </Link>
+          <ThemeToggle />
         </nav>
       </div>
     </header>
